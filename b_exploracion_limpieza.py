@@ -134,11 +134,11 @@ cur.fetchall()
 ### verficar tamaño de tablas con filtros ####
 
 ####movies
-pd.read_sql('select count(*) from books', conn)
-pd.read_sql('select count(*) from books_final', conn)
+pd.read_sql('select count(*) from movies', conn)
+pd.read_sql('select count(*) from movies_final', conn)
 
 ##ratings
-pd.read_sql('select count(*) from book_ratings', conn)
+pd.read_sql('select count(*) from ratings', conn)
 pd.read_sql('select count(*) from ratings_final', conn)
 
 ## 3 tablas cruzadas ###

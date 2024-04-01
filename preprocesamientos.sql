@@ -28,7 +28,7 @@ create table movies_sel as select movieId,
                          order by cnt_rat desc ;
 
 
--------crear tablas filtradas de peliculas, usuarios y calificaciones ----
+-------crear tablas filtradas de peliculas y calificaciones ----
 
 drop table if exists ratings_final;
 
@@ -42,22 +42,12 @@ on a.movieId =b.movieId
 inner join usuarios_sel c
 on a."userId" =c.user_id;
 
-drop table if exists users_final;
-
-create table users_final as
-select a."User-ID"as user_id,
-a.Location as location,
-a.Age as age
-from users a
-inner join usuarios_sel c
-on a."User-ID" =c.user_id;
-
 drop table if exists movies_final;
 
 create table movies_final as
 select a.movieId as movieId,
 a."title"  as title,
-a."genres" as genres,
+a."genres" as genres
 from movies a
 inner join movies_sel c
 on a.movieId= c.movieId;
@@ -65,17 +55,18 @@ on a.movieId= c.movieId;
 
 ---crear tabla completa ----
 
-drop table if exists full_ratings ;
+drop table if exists full_ratings;
 
-create table full_ratings as select 
-a.*,
-b.location,
-b.age,
-c.book_title,
-c.book_author,
-c.year_pub,
-c.publisher,
-c.i_url
- from ratings_final a inner join
- users_final b on a.user_id=b.user_id
- inner join books_final c on a.isbn=c.isbn;
+create table full_ratings as 
+select 
+    a.user_id,
+    a.movieId,
+    a.rating,
+    b.title,
+    b.genres
+from 
+    ratings_final a 
+inner join 
+    movies_final b 
+on 
+    a.movieId = b.movieId;
