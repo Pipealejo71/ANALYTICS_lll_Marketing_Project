@@ -10,7 +10,7 @@ create table usuarios_sel as
 select "userId" as user_id, count(*) as cnt_rat
 from ratings
 group by "userId"
-having cnt_rat >50 and cnt_rat <= 1000
+having cnt_rat >50 and cnt_rat <= 100
 order by cnt_rat desc ;
 
 

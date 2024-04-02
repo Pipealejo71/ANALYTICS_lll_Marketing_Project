@@ -37,6 +37,7 @@ movies=pd.read_sql("select * from movies", conn)
 movies.info()
 movies.head()
 movies.duplicated().sum() 
+#movies[movies.duplicated(subset=['title'], keep=False)]
 
 ratings.info()
 ratings.head()
@@ -83,7 +84,7 @@ rating_users2=pd.read_sql(''' select "User-Id" as user_id,
                          count(*) as cnt_rat
                          from book_ratings
                          group by "User-Id"
-                         having cnt_rat >=50 and cnt_rat <=1000
+                         having cnt_rat >=50 and cnt_rat <=100
                          order by cnt_rat asc
                          ''',conn )
 
