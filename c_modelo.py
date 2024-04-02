@@ -45,21 +45,35 @@ pd.read_sql("""select title,
 movies=pd.read_sql('select * from movies_final', conn )
 movies.info()
 
+##Extraer año de la pelicula
+movies['year'] = movies['title'].str.extract('\(([^)]*)\)$', expand=False)
+movies['year']=movies.year.astype('int')
+movies['year'].value_counts()
+movies.info()
+
+
+##### escalar para que año esté en el mismo rango ###
+
+sc=MinMaxScaler()
+movies[["year_sc"]]=sc.fit_transform(movies[['year']])
 
 #### eliminar filas que no se van a utilizar
-movies_2=movies.drop(columns=['movieId','title'])
+movies_2=movies.drop(columns=['movieId','title','year'])
 movies_2.info()
 
-
 #### convertir a dummies
-movies_2['genres'].nunique()
+# Divide la columna de géneros en varias columnas
+genres_split = movies_2['genres'].str.split('|', expand=True)
 
-col_dum=['genres']
-movies_dum=pd.get_dummies(movies_2,columns=col_dum)
+# Convierte estas columnas en columnas dummies
+genres_dummies = pd.get_dummies(genres_split.stack()).groupby(level=0).sum()
+
+# Une las columnas dummies al DataFrame original
+movies_dum = pd.concat([movies_2, genres_dummies], axis=1)
+movies_dum=movies_dum.drop(columns=['genres'])
 movies_dum.shape
 
 joblib.dump(movies_dum,"movies_dum.joblib") ### para utilizar en segundos modelos
-
 
 #### peliculas recomendadas ejemplo para una pelicula
 m='Reservoir Dogs (1992)'

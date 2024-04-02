@@ -71,10 +71,3 @@ inner join
 on 
     a.movieId = b.movieId;
 
---Se crea una columna con el año de la película
-ALTER TABLE full_ratings
-ADD COLUMN year INTEGER;
-
-UPDATE full_ratings
-SET year = CAST(substr(title, instr(title, '(') + 1, 4) AS INTEGER);
-
