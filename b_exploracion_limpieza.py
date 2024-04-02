@@ -11,7 +11,6 @@ import a_funciones as fn
 
 ###### para ejecutar sql y conectarse a bd ###
 
-## crear copia de db_books datos originales, nombrarla books2 y procesar books2
 
 conn=sql.connect('db_movies') ### crear cuando no existe el nombre de cd  y para conectarse cuando sí existe.
 cur=conn.cursor() ###para funciones que ejecutan sql en base de datos
@@ -23,6 +22,9 @@ cur.fetchall()
 ##### consultar trayendo para pandas ###
 ratings=pd.read_sql("select * from ratings", conn)
 movies=pd.read_sql("select * from movies", conn)
+ratings_final=pd.read_sql("select * from ratings", conn)
+movies_final=pd.read_sql("select * from movies", conn)
+full_ratings=pd.read_sql('select * from full_ratings',conn)
 
 #### para llevar de pandas a BD
 #movies.to_sql("movies2", conn, if_exists='replace')
