@@ -6,13 +6,15 @@ from ipywidgets import interact ## para análisis interactivo
 from sklearn import neighbors ### basado en contenido un solo producto consumido
 import joblib
 
+
+
 #### conectar_base_de_Datos
 conn=sql.connect('db_movies')
 cur=conn.cursor()
-
 #### ver tablas disponibles en base de datos ###
 cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
 cur.fetchall()
+
 
 
 ################## 1. sistemas basados en popularidad ###############
@@ -39,6 +41,7 @@ pd.read_sql("""select title,
             """, conn)
 
 
+
 ######## 2.1 Sistema de recomendación basado en contenido un solo producto - Manual ########
 ############################################################################################
 
@@ -53,7 +56,6 @@ movies.info()
 
 
 ##### escalar para que año esté en el mismo rango ###
-
 sc=MinMaxScaler()
 movies[["year_sc"]]=sc.fit_transform(movies[['year']])
 
@@ -75,6 +77,8 @@ movies_dum.shape
 
 joblib.dump(movies_dum,"movies_dum.joblib") ### para utilizar en segundos modelos
 
+
+
 #### peliculas recomendadas ejemplo para una pelicula
 m='Reservoir Dogs (1992)'
 ind_m=movies[movies['title']==m].index.values.astype(int)[0]
@@ -84,9 +88,7 @@ top_similar_m=similar_m.to_frame(name="correlación").iloc[0:11,] ### el 11 es n
 top_similar_m['title']=movies["title"] ### agregaro los nombres (como tiene mismo indice no se debe cruzar)
 top_similar_m    
 
-
 #### Peliculas recomendadas para una pelicula
-
 def recomendacion(peli = list(movies['title'])):
      
     ind_peli=movies[movies['title']==peli].index.values.astype(int)[0]   #### obtener indice de pelicula seleccionada de lista
@@ -112,6 +114,8 @@ dist, idlist = model.kneighbors(movies_dum)
 distancias=pd.DataFrame(dist) ## devuelve un ranking de la distancias más cercanas para cada fila(pelicula)
 id_list=pd.DataFrame(idlist) ## para saber esas distancias a que item corresponde
 
+
+
 ####ejemplo para una pelicula
 movies_list_name = []
 movies_name='Reservoir Dogs (1992)'
@@ -122,8 +126,6 @@ for newid in idlist[movies_id]:
 
 movies_list_name
 
-
-
 #### Peliculas recomendadas para una pelicula
 def MovieRecommender(movies_name = list(movies['title'].value_counts().index)):
     movies_list_name = []
@@ -132,6 +134,5 @@ def MovieRecommender(movies_name = list(movies['title'].value_counts().index)):
     for newid in idlist[movies_id]:
         movies_list_name.append(movies.loc[newid].title)
     return movies_list_name
-
 
 print(interact(MovieRecommender))
