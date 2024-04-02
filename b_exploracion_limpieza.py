@@ -9,9 +9,9 @@ import a_funciones as fn
 #pip install --upgrade nbformat
 ###pip install  pysqlite3
 
+
+
 ###### para ejecutar sql y conectarse a bd ###
-
-
 conn=sql.connect('db_movies') ### crear cuando no existe el nombre de cd  y para conectarse cuando sí existe.
 cur=conn.cursor() ###para funciones que ejecutan sql en base de datos
 
@@ -26,30 +26,22 @@ ratings_final=pd.read_sql("select * from ratings", conn)
 movies_final=pd.read_sql("select * from movies", conn)
 full_ratings=pd.read_sql('select * from full_ratings',conn)
 
-#### para llevar de pandas a BD
-#movies.to_sql("movies2", conn, if_exists='replace')
-###conn.close()para cerrar conexión
 
 
-#####Exploración inicial #####
-
-### Identificar campos de cruce y verificar que estén en mismo formato ####
-### verificar duplicados
-
+##### EXPLORACIÓN INICIAL
 movies.info()
 movies.head()
 movies.duplicated().sum() 
 #movies[movies.duplicated(subset=['title'], keep=False)]
-
 ratings.info()
 ratings.head()
 ratings.duplicated().sum()
 
 
 
-##### Descripción base de ratings
+##### DESCRIPCIÓN DE BASE RATINGS
 
-### calcular la distribución de calificaciones
+### calcular distribución de calificaciones
 cr=pd.read_sql(""" select 
                           "rating", 
                           count(*) as conteo 
@@ -63,7 +55,7 @@ go.Figure(data,Layout)
 
 
 
-### USUARIOS. calcular cada usuario cuátas peliculas calificó
+### USUARIOS. calcular antidad de peliculas calificadas por usuario
 rating_users=pd.read_sql(''' select "userId",
                          count(*) as cnt_rat
                          from ratings
