@@ -45,27 +45,25 @@ ratings.info()
 ratings.head()
 ratings.duplicated().sum()
 
+
+
 ##### Descripción base de ratings
 
-###calcular la distribución de calificaciones
+### calcular la distribución de calificaciones
 cr=pd.read_sql(""" select 
                           "rating", 
                           count(*) as conteo 
                           from ratings
                           group by "rating"
                           order by conteo desc""", conn)
-###Nombres de columnas con numeros o guiones se deben poner en doble comilla para que se reconozcan
-
 
 data  = go.Bar( x=cr.rating,y=cr.conteo, text=cr.conteo, textposition="outside")
 Layout=go.Layout(title="Count of ratings",xaxis={'title':'Rating'},yaxis={'title':'Count'})
 go.Figure(data,Layout)
 
-### los que están en 0 fueron vistos pero no calificados
-#### Se conoce como calificación implicita, consume producto pero no da una calificacion
 
 
-### calcular cada usuario cuátos peliculas calificó
+### USUARIOS. calcular cada usuario cuátas peliculas calificó
 rating_users=pd.read_sql(''' select "userId",
                          count(*) as cnt_rat
                          from ratings
@@ -76,30 +74,28 @@ rating_users=pd.read_sql(''' select "userId",
 fig  = px.histogram(rating_users, x= 'cnt_rat', title= 'Hist frecuencia de numero de calificaciones por usario')
 fig.show() 
 
-
 rating_users.describe()
-### la mayoria de usarios tiene pocos libros calificados, pero los que más tienen muchos
+### la mayoria de usarios tiene pocas Peliculas calificadas, pero los que más tienen muchos
 
-#### excluir usuarios con menos de 50 libros calificados (para tener calificaion confiable) y los que tienen mas de mil porque pueden ser no razonables
 
-rating_users2=pd.read_sql(''' select "User-Id" as user_id,
+
+#### excluir usuarios con menos de 50 Peliculas calificadas (para tener calificaion confiable) y los que tienen mas de mil porque pueden ser no razonables
+rating_users2=pd.read_sql(''' select "userId" as user_id,
                          count(*) as cnt_rat
-                         from book_ratings
-                         group by "User-Id"
+                         from ratings
+                         group by "userId"
                          having cnt_rat >=50 and cnt_rat <=100
                          order by cnt_rat asc
                          ''',conn )
 
-### ver distribucion despues de filtros,ahora se ve mas razonables
 rating_users2.describe()
 
-
-### graficar distribucion despues de filtrar datos
 fig  = px.histogram(rating_users2, x= 'cnt_rat', title= 'Hist frecuencia de numero de calificaciones por usario')
 fig.show() 
 
 
-#### verificar cuantas calificaciones tiene cada pelicula
+
+#### PELICULA. verificar cuantas calificaciones tiene cada pelicula
 rating_movies=pd.read_sql(''' select movieId ,
                          count(*) as cnt_rat
                          from ratings
@@ -107,13 +103,13 @@ rating_movies=pd.read_sql(''' select movieId ,
                          order by cnt_rat desc
                          ''',conn )
 
-### analizar distribucion de calificaciones por libro
 rating_movies.describe()
-
-### graficar distribucion
 
 fig  = px.histogram(rating_movies, x= 'cnt_rat', title= 'Hist frecuencia de numero de calificaciones para cada pelicula')
 fig  
+
+
+
 ####Excluir peliculas que no tengan más de 10 calificaciones 
 rating_movies2=pd.read_sql(''' select movieId ,
                          count(*) as cnt_rat
@@ -124,14 +120,18 @@ rating_movies2=pd.read_sql(''' select movieId ,
                          ''',conn )
 
 rating_movies2.describe()
+
 fig  = px.histogram(rating_movies2, x= 'cnt_rat', title= 'Hist frecuencia de numero de calificaciones para cada pelicula')
 fig
 
-###########
-fn.ejecutar_sql('preprocesamientos.sql', cur)
 
+
+#### SQL
+fn.ejecutar_sql('preprocesamientos.sql', cur)
+## Verificar tablas que hay en la base de datos
 cur.execute("select name from sqlite_master where type='table' ")
 cur.fetchall()
+
 
 
 ### verficar tamaño de tablas con filtros ####
@@ -152,4 +152,6 @@ ratings.duplicated().sum() ## al cruzar tablas a veces se duplican registros
 ratings.info()
 ratings.head(10)
 
-### tabla de full ratings se utilizara para modelos #####
+
+
+### tabla de ´full ratings´ se utilizara para modelos.
