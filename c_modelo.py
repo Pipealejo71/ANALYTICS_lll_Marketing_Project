@@ -1,3 +1,4 @@
+#### MODELOS
 import numpy as np
 import pandas as pd
 import sqlite3 as sql
@@ -17,10 +18,9 @@ cur.fetchall()
 
 
 
-################## 1. sistemas basados en popularidad ###############
-#####################################################################
+#### 1. SISTEMAS BASADOS EN POPULARIDAD
 
-#### mejores calificadas, excluyendo las que no tienen calificacion
+#### 1.1. mejores calificadas, excluyendo las que no tienen calificacion
 pd.read_sql("""select title, 
             avg(rating) as avg_rat,
             count(*) as read_num
@@ -31,7 +31,7 @@ pd.read_sql("""select title,
             limit 10
             """, conn)
 
-#### con mayor cantidad de vistas y promedio de quienes calficaron
+#### 1.2. con mayor cantidad de vistas y promedio de quienes calficaron
 pd.read_sql("""select title, 
             avg(iif(rating = 0, Null, rating)) as avg_rat,
             count(*) as view_num
@@ -42,9 +42,9 @@ pd.read_sql("""select title,
 
 
 
-######## 2.1 Sistema de recomendación basado en contenido un solo producto - Manual ########
-############################################################################################
+#### 2. SISTEMAS BASADOS EN CONTENIDO 
 
+#### 2.1 un solo producto - Manual ########
 movies=pd.read_sql('select * from movies_final', conn )
 movies.info()
 
@@ -73,7 +73,7 @@ genres_dummies = pd.get_dummies(genres_split.stack()).groupby(level=0).sum()
 # Une las columnas dummies al DataFrame original
 movies_dum = pd.concat([movies_2, genres_dummies], axis=1)
 movies_dum=movies_dum.drop(columns=['genres'])
-movies_dum.shape
+movies_dum
 
 joblib.dump(movies_dum,"movies_dum.joblib") ### para utilizar en segundos modelos
 
@@ -88,7 +88,7 @@ top_similar_m=similar_m.to_frame(name="correlación").iloc[0:11,] ### el 11 es n
 top_similar_m['title']=movies["title"] ### agregaro los nombres (como tiene mismo indice no se debe cruzar)
 top_similar_m    
 
-#### Peliculas recomendadas para una pelicula
+#### PelÍculas recomendadas para una pelÍcula
 def recomendacion(peli = list(movies['title'])):
      
     ind_peli=movies[movies['title']==peli].index.values.astype(int)[0]   #### obtener indice de pelicula seleccionada de lista
@@ -103,8 +103,7 @@ print(interact(recomendacion))
 
 
 
-######### 2.2 Sistema de recomendación basado en contenido KNN un solo producto visto ########
-##############################################################################################
+#### 2.2. KNN un solo producto visto 
 
 ## el coseno de un angulo entre dos vectores es 1 cuando son perpendiculares y 0 cuando son paralelos(indicando que son muy similar324e-06	3.336112e-01	3.336665e-01	3.336665e-es)
 model = neighbors.NearestNeighbors(n_neighbors=11, metric='cosine')
@@ -123,10 +122,9 @@ movies_id = movies[movies['title'] == movies_name].index ### extraer el indice d
 
 for newid in idlist[movies_id]:
         movies_list_name.append(movies.loc[newid].title) ### agrega el nombre de cada una de los id recomendados
-
 movies_list_name
 
-#### Peliculas recomendadas para una pelicula
+#### PelÍculas recomendadas para una película
 def MovieRecommender(movies_name = list(movies['title'].value_counts().index)):
     movies_list_name = []
     movies_id = movies[movies['title'] == movies_name].index
@@ -134,5 +132,5 @@ def MovieRecommender(movies_name = list(movies['title'].value_counts().index)):
     for newid in idlist[movies_id]:
         movies_list_name.append(movies.loc[newid].title)
     return movies_list_name
-
+  
 print(interact(MovieRecommender))

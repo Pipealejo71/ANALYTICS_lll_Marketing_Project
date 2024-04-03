@@ -55,7 +55,7 @@ go.Figure(data,Layout)
 
 
 
-### USUARIOS. calcular antidad de peliculas calificadas por usuario
+### CANTIDAD DE PELICULAS CALIFICADAS POR USUARIO
 rating_users=pd.read_sql(''' select "userId",
                          count(*) as cnt_rat
                          from ratings
@@ -71,7 +71,7 @@ rating_users.describe()
 
 
 
-#### excluir usuarios con menos de 50 Peliculas calificadas (para tener calificaion confiable) y los que tienen mas de mil porque pueden ser no razonables
+#### EXCLUIR USUARIOS CON MENOS DE 50 Y MAS DE 100 PELICULAS CALIFICADAS
 rating_users2=pd.read_sql(''' select "userId" as user_id,
                          count(*) as cnt_rat
                          from ratings
@@ -87,7 +87,7 @@ fig.show()
 
 
 
-#### PELICULA. verificar cuantas calificaciones tiene cada pelicula
+#### CANTIDAD DE CALIFICACIONES POR PELICULA
 rating_movies=pd.read_sql(''' select movieId ,
                          count(*) as cnt_rat
                          from ratings
@@ -95,14 +95,13 @@ rating_movies=pd.read_sql(''' select movieId ,
                          order by cnt_rat desc
                          ''',conn )
 
+fig  = px.histogram(rating_movies, x= 'cnt_rat', title= 'Hist frecuencia de numero de calificaciones para cada pelicula')
+fig.show() 
+
 rating_movies.describe()
 
-fig  = px.histogram(rating_movies, x= 'cnt_rat', title= 'Hist frecuencia de numero de calificaciones para cada pelicula')
-fig  
 
-
-
-####Excluir peliculas que no tengan más de 10 calificaciones 
+#### EXCLUIR PELICULAS CON MENOS DE 10 CALIFICACIONES
 rating_movies2=pd.read_sql(''' select movieId ,
                          count(*) as cnt_rat
                          from ratings
@@ -114,11 +113,11 @@ rating_movies2=pd.read_sql(''' select movieId ,
 rating_movies2.describe()
 
 fig  = px.histogram(rating_movies2, x= 'cnt_rat', title= 'Hist frecuencia de numero de calificaciones para cada pelicula')
-fig
+fig.show() 
 
 
 
-#### SQL
+#### EJECUCIÓN DEL PREPROCESAMIENTO - SQL
 fn.ejecutar_sql('preprocesamientos.sql', cur)
 ## Verificar tablas que hay en la base de datos
 cur.execute("select name from sqlite_master where type='table' ")
