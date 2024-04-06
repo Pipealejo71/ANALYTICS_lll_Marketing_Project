@@ -1,7 +1,7 @@
 
 #pip install scikit-surprise
 #pip install scikit-surprise==1.1.2
-import surprise
+#import surprise
 
 import numpy as np
 import pandas as pd
@@ -14,10 +14,10 @@ import joblib
 ###Puede generar problemas en instalación local de pyhton. Genera error instalando con pip
 #### probar que les funcione para la próxima clase 
 
-from surprise import Reader, Dataset
-from surprise.model_selection import cross_validate, GridSearchCV
-from surprise import KNNBasic, KNNWithMeans, KNNWithZScore, KNNBaseline
-from surprise.model_selection import train_test_split
+#from surprise import Reader, Dataset
+#from surprise.model_selection import cross_validate, GridSearchCV
+#from surprise import KNNBasic, KNNWithMeans, KNNWithZScore, KNNBaseline
+#from surprise.model_selection import train_test_split
 
 
 #### conectar_base_de_Datos
@@ -33,56 +33,59 @@ cur.fetchall()
 #### 3 Sistema de recomendación basado en contenido KNN #################
 #### Con base en todo lo visto por el usuario #######################
 #######################################################################
+ratings=pd.read_sql('select * from ratings', conn )
 
-movies=pd.read_sql('select * from db_movies', conn )
+movies=pd.read_sql('select * from movies_final', conn )
+movies['year'] = movies['title'].str.extract('\(([^)]*)\)$', expand=False)
 movies['year']=movies.year.astype('int')
-
+movies['year'].value_counts()
+movies.info()
 ##### cargar data frame escalado y con dummies ###
 
-movies_dum2= joblib.load('salidas\\movies_dum2.joblib')
+movies_dum2= joblib.load('movies_dum.joblib')
 
 
 #### seleccionar usuario para recomendaciones ####
 
-usuarios=pd.read_sql('select distinct (user_id) as user_id from ratings',conn)
+usuarios_sel=pd.read_sql('select distinct (user_id) as userId from usuarios_sel',conn)
 
-user_id=31226 ### para ejemplo manual
+user_id=604 ### para ejemplo manual
 
 
-def recomendar(user_id=list(usuarios['user_id'].value_counts().index)):
+def recomendar(user_id=list(usuarios_sel['userId'].value_counts().index)):
     
     ###seleccionar solo los ratings del usuario seleccionado
-    ratings=pd.read_sql('select *from ratings where user_id=:user',conn, params={'user':user_id,})
+    ratings=pd.read_sql('select *from ratings where userId=:user',conn, params={'user':user_id,})
     
     ###convertir ratings del usuario a array
-    l_books_r=ratings['isbn'].to_numpy()
+    l_movies_r=ratings['movieId'].to_numpy()
     
     ###agregar la columna de isbn y titulo del libro a dummie para filtrar y mostrar nombre
-    books_dum2[['isbn','book_title']]=books[['isbn','book_title']]
+    movies_dum2[['movieId','title']]=movies[['movieId','title']]
     
     ### filtrar libros calificados por el usuario
-    books_r=books_dum2[books_dum2['isbn'].isin(l_books_r)]
+    movies_r=movies_dum2[movies_dum2['movieId'].isin(l_movies_r)]
     
     ## eliminar columna nombre e isbn
-    books_r=books_r.drop(columns=['isbn','book_title'])
-    books_r["indice"]=1 ### para usar group by y que quede en formato pandas tabla de centroide
+    movies_r=movies_r.drop(columns=['movieId','title'])
+    movies_r["indice"]=1 ### para usar group by y que quede en formato pandas tabla de centroide
     ##centroide o perfil del usuario
-    centroide=books_r.groupby("indice").mean()
+    centroide=movies_r.groupby("indice").mean()
     
     
     ### filtrar libros no leídos
-    books_nr=books_dum2[~books_dum2['isbn'].isin(l_books_r)]
-    ## eliminbar nombre e isbn
-    books_nr=books_nr.drop(columns=['isbn','book_title'])
+    movies_nr=movies_dum2[~movies_dum2['movieId'].isin(l_movies_r)]
+    ## eliminbar nombre e movieId
+    movies_nr=movies_nr.drop(columns=['movieId','title'])
     
     ### entrenar modelo 
     model=neighbors.NearestNeighbors(n_neighbors=11, metric='cosine')
-    model.fit(books_nr)
+    model.fit(movies_nr)
     dist, idlist = model.kneighbors(centroide)
     
     ids=idlist[0] ### queda en un array anidado, para sacarlo
-    recomend_b=books.loc[ids][['book_title','isbn']]
-    leidos=books[books['isbn'].isin(l_books_r)][['book_title','isbn']]
+    recomend_b=movies.loc[ids][['movieId','title']]
+    vistos=movies[movies['movieId'].isin(l_movies_r)][['movieId','title']]
     
     return recomend_b
 
