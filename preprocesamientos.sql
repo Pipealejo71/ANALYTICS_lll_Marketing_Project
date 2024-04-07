@@ -51,10 +51,7 @@ a."genres" as genres
 from movies a
 inner join movies_sel c
 on a.movieId= c.movieId;
-ALTER TABLE movies_final ADD (year NUMBER);
 
-UPDATE movies_final SET year = SUBSTR(title, INSTR(title, '(', -1, 1) + 1, 4)
-WHERE INSTR(title, '(', -1, 1) > 0 AND LENGTH(SUBSTR(title, INSTR(title, '(', -1, 1) + 1, 4)) = 4;
 
 ---crear tabla completa ----
 
