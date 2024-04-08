@@ -14,10 +14,10 @@ import joblib
 ###Puede generar problemas en instalación local de pyhton. Genera error instalando con pip
 #### probar que les funcione para la próxima clase 
 
-#from surprise import Reader, Dataset
-#from surprise.model_selection import cross_validate, GridSearchCV
-#from surprise import KNNBasic, KNNWithMeans, KNNWithZScore, KNNBaseline
-#from surprise.model_selection import train_test_split
+from surprise import Reader, Dataset
+from surprise.model_selection import cross_validate, GridSearchCV
+from surprise import KNNBasic, KNNWithMeans, KNNWithZScore, KNNBaseline
+from surprise.model_selection import train_test_split
 
 
 #### conectar_base_de_Datos
@@ -136,31 +136,27 @@ performance_df = pd.DataFrame.from_dict(results).T
 performance_df.sort_values(by='RMSE')
 
 ###################se escoge el mejor knn withmeans#########################
-param_grid = { 'sim_options' : {'name': ['msd','cosine'], \
-                                'min_support': [5,2], \
-                                'user_based': [False, True]}
-             }
 
-## min support es la cantidad de items o usuarios que necesita para calcular recomendación
-## name medidas de distancia
+param_grid = {
+    'sim_options': {
+        'name': ['msd', 'cosine'],
+        'min_support': [5, 2],
+        'user_based': [False, True]
+    }
+}
 
-### se afina si es basado en usuario o basado en ítem
+gridsearchKNNBaseline = GridSearchCV(KNNBaseline, param_grid, measures=['rmse'], cv=2, n_jobs=-1)
 
-gridsearchKNNWithMeans = GridSearchCV(KNNWithMeans, param_grid, measures=['rmse'], \
-                                      cv=2, n_jobs=-1)
-                                    
-gridsearchKNNWithMeans.fit(data)
+gridsearchKNNBaseline.fit(data)
 
-
-gridsearchKNNWithMeans.best_params["rmse"]
-gridsearchKNNWithMeans.best_score["rmse"]
-gs_model=gridsearchKNNWithMeans.best_estimator['rmse'] ### mejor estimador de gridsearch
-
+best_params = gridsearchKNNBaseline.best_params['rmse']
+best_score = gridsearchKNNBaseline.best_score['rmse']
+best_estimator = gridsearchKNNBaseline.best_estimator['rmse']
 
 ################# Entrenar con todos los datos y Realizar predicciones con el modelo afinado
 
 trainset = data.build_full_trainset() ### esta función convierte todos los datos en entrnamiento, las funciones anteriores dividen  en entrenamiento y evaluación
-model=gs_model.fit(trainset) ## se reentrena sobre todos los datos posibles (sin dividir)
+model=best_estimator.fit(trainset) ## se reentrena sobre todos los datos posibles (sin dividir)
 
 
 
@@ -168,11 +164,11 @@ predset = trainset.build_anti_testset() ### crea una tabla con todos los usuario
 #### en la columna de rating pone el promedio de todos los rating, en caso de que no pueda calcularlo para un item-usuario
 len(predset)
 
-predictions = gs_model.test(predset) ### función muy pesada, hace las predicciones de rating para todos los libros que no hay leido un usuario
+predictions = best_estimator.test(predset) ### función muy pesada, hace las predicciones de rating para todos los libros que no hay leido un usuario
 ### la funcion test recibe un test set constriuido con build_test method, o el que genera crosvalidate
 
 ####### la predicción se puede hacer para un libro puntual
-model.predict(uid=269397, iid='0446353205',r_ui='') ### uid debía estar en número e isb en comillas
+model.predict(uid=429, iid='1197',r_ui='') ### uid debía estar en número e isb en comillas
 
 predictions_df = pd.DataFrame(predictions) ### esta tabla se puede llevar a una base donde estarán todas las predicciones
 predictions_df.shape
@@ -180,6 +176,8 @@ predictions_df.head()
 predictions_df['r_ui'].unique() ### promedio de ratings
 predictions_df.sort_values(by='est',ascending=False)
 
+movies=pd.read_sql('select * from reco ', conn)
+movies.shape
 
 ##### funcion para recomendar los 10 libros con mejores predicciones y llevar base de datos para consultar resto de información
 def recomendaciones(user_id,n_recomend=10):
@@ -190,12 +188,15 @@ def recomendaciones(user_id,n_recomend=10):
     recomendados = predictions_userID[['iid','est']]
     recomendados.to_sql('reco',conn,if_exists="replace")
     
-    recomendados=pd.read_sql('''select a.*, b.title 
-                             from reco a left join movies_final b
-                             on a.iid=b.isbn ''', conn)
+    recomendados=pd.read_sql('''select a.*, b.title from reco a 
+                                left join movies_final b 
+                                on a.iid = b.movieId ''', conn)
 
     return(recomendados)
 
 
  
 recomendaciones(user_id=604,n_recomend=10)
+
+resultado_recomendaciones = recomendaciones(user_id=604, n_recomend=10)
+print(resultado_recomendaciones)
