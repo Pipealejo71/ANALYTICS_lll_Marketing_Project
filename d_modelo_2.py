@@ -135,7 +135,7 @@ for model in models:
 performance_df = pd.DataFrame.from_dict(results).T
 performance_df.sort_values(by='RMSE')
 
-###################se escoge el mejor knn withmeans#########################
+###################se escoge el mejor Knnbaseline#########################
 
 param_grid = {
     'sim_options': {
@@ -167,7 +167,7 @@ len(predset)
 predictions = best_estimator.test(predset) ### función muy pesada, hace las predicciones de rating para todos los libros que no hay leido un usuario
 ### la funcion test recibe un test set constriuido con build_test method, o el que genera crosvalidate
 
-####### la predicción se puede hacer para un libro puntual
+####### la predicción se puede hacer para una pelicula puntual
 model.predict(uid=429, iid='1197',r_ui='') ### uid debía estar en número e isb en comillas
 
 predictions_df = pd.DataFrame(predictions) ### esta tabla se puede llevar a una base donde estarán todas las predicciones
@@ -176,10 +176,7 @@ predictions_df.head()
 predictions_df['r_ui'].unique() ### promedio de ratings
 predictions_df.sort_values(by='est',ascending=False)
 
-movies=pd.read_sql('select * from reco ', conn)
-movies.shape
-
-##### funcion para recomendar los 10 libros con mejores predicciones y llevar base de datos para consultar resto de información
+##### funcion para recomendar los 10 peliculas con mejores predicciones y llevar base de datos para consultar resto de información
 def recomendaciones(user_id,n_recomend=10):
     
     predictions_userID = predictions_df[predictions_df['uid'] == user_id].\

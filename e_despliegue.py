@@ -38,14 +38,14 @@ def preprocesar():
     movies[["year_sc"]]=sc.fit_transform(movies[['year']])
 
     ## eliminar filas que no se van a utilizar ###
-    movies_dum1=movies.drop(columns=['movieId','year','title'])
+    movies_dum1=movies.drop(columns=['movieId','year','title','genres'])
 
     return movies_dum1,movies, conn, cur
 
 ##########################################################################
 ###############Función para entrenar modelo por cada usuario ##########
 ###############Basado en contenido todo lo visto por el usuario Knn#############################
-user_id=604 ### para ejemplo manual
+#user_id=604 ### para ejemplo manual
 def recomendar(user_id):
     
     movies_dum1, movies, conn, cur= preprocesar()
@@ -56,6 +56,7 @@ def recomendar(user_id):
     movies_r=movies_dum1[movies_dum1['movieId'].isin(l_movies_r)]
     movies_r=movies_r.drop(columns=['movieId','title'])
     movies_r["indice"]=1 ### para usar group by y que quede en formato pandas tabla de centroide
+    movies_r.info()
     centroide=movies_r.groupby("indice").mean()
     
     
@@ -85,12 +86,12 @@ def main(list_user):
         
         recomendaciones_todos=pd.concat([recomendaciones_todos, recomendaciones])
 
-    recomendaciones_todos.to_excel('C:\\cod\\LEA3_RecSys\\salidas\\reco\\recomendaciones.xlsx')
-    recomendaciones_todos.to_csv('C:\\cod\\LEA3_RecSys\\salidas\\reco\\recomendaciones.csv')
+    recomendaciones_todos.to_excel('C:\\Users\\User\\Desktop\\Analitica lll\\ANALYTICS_lll_Marketing_Project\\recomendaciones.xlsx')
+    recomendaciones_todos.to_csv('C:\\Users\\User\\Desktop\\Analitica lll\\ANALYTICS_lll_Marketing_Project\\recomendaciones.csv')
 
 
 if __name__=="__main__":
-    list_user=[52853,31226,167471,8066 ]
+    list_user=[604,373,39,323 ]
     main(list_user)
     
 
