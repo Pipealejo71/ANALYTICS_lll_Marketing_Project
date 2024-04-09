@@ -13,11 +13,11 @@ from sklearn import neighbors
 def preprocesar():
 
     #### conectar_base_de_Datos#################
-    conn=sql.connect('C:\\Users\\User\\Desktop\\Analitica lll\\ANALYTICS_lll_Marketing_Project\\db_movies')
+    conn=sql.connect('C:\\Users\\SUSANA\\Documents\\DOCUMENTOS UDEA\\ANALITICA III\\MODULO 2\\ANALYTICS_lll_Marketing_Project\\db_movies')
     cur=conn.cursor()
 
     ######## convertir datos crudos a bases filtradas por usuarios que tengan cierto número de calificaciones
-    fn.ejecutar_sql('C:\\Users\\User\\Desktop\\Analitica lll\\ANALYTICS_lll_Marketing_Project\\preprocesamientos.sql', cur)
+    fn.ejecutar_sql('C:\\Users\\SUSANA\\Documents\\DOCUMENTOS UDEA\\ANALITICA III\\MODULO 2\\ANALYTICS_lll_Marketing_Project\\preprocesamientos.sql', cur)
     fn.ejecutar_sql('preprocesamientos.sql', cur)
 
     ##### llevar datos que cambian constantemente a python ######
@@ -86,8 +86,8 @@ def main(list_user):
         
         recomendaciones_todos=pd.concat([recomendaciones_todos, recomendaciones])
 
-    recomendaciones_todos.to_excel('C:\\Users\\User\\Desktop\\Analitica lll\\ANALYTICS_lll_Marketing_Project\\recomendaciones.xlsx')
-    recomendaciones_todos.to_csv('C:\\Users\\User\\Desktop\\Analitica lll\\ANALYTICS_lll_Marketing_Project\\recomendaciones.csv')
+    recomendaciones_todos.to_excel('C:\\Users\\SUSANA\\Documents\\DOCUMENTOS UDEA\\ANALITICA III\\MODULO 2\\ANALYTICS_lll_Marketing_Project\\recomendaciones.xlsx')
+    recomendaciones_todos.to_csv('C:\\Users\\SUSANA\\Documents\\DOCUMENTOS UDEA\\ANALITICA III\\MODULO 2\\ANALYTICS_lll_Marketing_Project\\recomendaciones.csv')
 
 
 if __name__=="__main__":
