@@ -160,11 +160,11 @@ model=best_estimator.fit(trainset) ## se reentrena sobre todos los datos posible
 
 
 
-predset = trainset.build_anti_testset() ### crea una tabla con todos los usuarios y los libros que no han leido
+predset = trainset.build_anti_testset() ### crea una tabla con todos los usuarios y las peliculas que no han leido
 #### en la columna de rating pone el promedio de todos los rating, en caso de que no pueda calcularlo para un item-usuario
 len(predset)
 
-predictions = best_estimator.test(predset) ### función muy pesada, hace las predicciones de rating para todos los libros que no hay leido un usuario
+predictions = best_estimator.test(predset) ### función muy pesada, hace las predicciones de rating para todas las peliculas que no ha visto un usuario
 ### la funcion test recibe un test set constriuido con build_test method, o el que genera crosvalidate
 
 ####### la predicción se puede hacer para una pelicula puntual
